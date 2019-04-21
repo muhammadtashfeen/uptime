@@ -1,0 +1,67 @@
+<template>
+
+    <div class="box mt-20">
+
+        <a v-if="!addNewServer"
+           v-on:click="addNewServer = 1"
+           class="button is-primary">Add New Server</a>
+
+        <div v-if="addNewServer" class="mx-auto">
+            <form>
+                <div class="field">
+                    <label class="label">Server name</label>
+                    <div class="control">
+                        <input v-model="serverName" class="input" type="text" placeholder="Wordpress">
+                    </div>
+                    <p class="help">Any name to identify the server.</p>
+                </div>
+
+                <div class="field">
+                    <label class="label">Server Address</label>
+                    <div class="control">
+                        <input v-model="serverUrl" class="input" type="text" placeholder="http://myserver.com">
+                    </div>
+                </div>
+                <div class="control">
+                    <a class="button is-primary"
+                       v-on:click="create()">
+                        Add
+                    </a>
+                    <a class="button"
+                       v-on:click="addNewServer = 0">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                addNewServer: false,
+                serverUrl: '',
+                serverName: '',
+            };
+        },
+        methods: {
+            create() {
+                axios.post('/api/server/new', {
+                    name: this.serverName,
+                    server_url: this.serverUrl,
+                })
+                .then(function (response) {
+                    console.log(response.data);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+        },
+    };
+</script>
