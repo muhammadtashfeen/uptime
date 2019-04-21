@@ -21,4 +21,6 @@ use Illuminate\Http\Request;
 
 Route::post('server/ping','Controller@ping');
 Route::post('server/new','Controller@create');
+Route::post('server/delete','Controller@delete');
+Route::post('server/update','Controller@update');
 Route::get('server/all','Controller@all');

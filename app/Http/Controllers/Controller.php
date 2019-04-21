@@ -20,18 +20,34 @@ class Controller extends BaseController
         $health = $health->check($request->get('serverUrl'));
 
         if($health == 200) {
-            return ['status' => 'Active' ];
+            return ['status' => 'up' ];
         } else {
-            return ['status' => 'Down' ];
+            return ['status' => 'down' ];
         }
     }
 
     public function create(Request $request)
     {
-        $serverUrl  = $request->get('name');
-        $serverName = $request->get('server_url');
+        $serverName  = $request->get('name');
+        $serverUrl = $request->get('server_url');
 
         $server = new Server();
+        $server->name = $serverName;
+        $server->server_url = $serverUrl;
+        $status =  $server->save();
+
+        return [
+            'isSaved' => $status
+        ];
+    }
+
+    public function update(Request $request)
+    {
+        $serverName  = $request->get('name');
+        $serverUrl = $request->get('server_url');
+
+        $server = Server::find($request->get('id'));
+
         $server->name = $serverName;
         $server->server_url = $serverUrl;
         $status =  $server->save();
@@ -46,4 +62,12 @@ class Controller extends BaseController
         $servers = Server::all();
         return $servers;
     }
+    public function delete(Request $request)
+    {
+        $server = Server::find($request->get('id'));
+        return [
+            'isDeleted' => $server->delete()
+        ];
+    }
+
 }

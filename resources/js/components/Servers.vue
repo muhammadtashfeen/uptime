@@ -1,9 +1,14 @@
 <template>
 
     <div>
-        <a class="button is-info" v-on:click="fetch">Refresh</a>
+        <new-server v-on:serverAdded="fetch"></new-server>
+        <a class="button is-info"
+           v-bind:class="{'is-loading': isLoading}"
+           v-on:click="fetch">Refresh</a>
         <div v-for="server in servers">
-            <server :server="{id: server.id, name: server.name, url: server.server_url, status: server.status,}"></server>
+            <server :server="{id: server.id, name: server.name, url: server.server_url, status: server.status,}"
+            v-on:serverDeleted="fetch"
+            v-on:serverUpdated="fetch"></server>
 
         </div>
 
@@ -16,7 +21,8 @@
 
         data() {
            return  {
-             servers: []
+             servers: [],
+             isLoading: false,
            };
         },
         created() {
@@ -48,7 +54,13 @@
             update(data) {
 
                 for (var i = 0; i < data.length; i++) {
+
+                    if(i == (data.length - 1)) {
+                        this.isLoading = false
+                    }
+
                     this.ping(data[i]);
+
                 }
             },
 
@@ -62,7 +74,6 @@
                     serverUrl: serverUrl,
                 })
                 .then(response => {
-                    console.log(server);
                     serverStatus = response.data.status;
                     this.servers.push({
                         id: serverId,

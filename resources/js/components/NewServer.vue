@@ -55,10 +55,11 @@
                     name: this.serverName,
                     server_url: this.serverUrl,
                 })
-                .then(function (response) {
-                    console.log(response.data);
+                .then(response => {
+                    this.$emit('serverAdded');
+                    this.addNewServer = false;
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                 });
             }

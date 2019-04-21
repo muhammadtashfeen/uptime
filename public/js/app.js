@@ -1834,11 +1834,15 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     create: function create() {
+      var _this = this;
+
       axios.post('/api/server/new', {
         name: this.serverName,
         server_url: this.serverUrl
       }).then(function (response) {
-        console.log(response.data);
+        _this.$emit('serverAdded');
+
+        _this.addNewServer = false;
       })["catch"](function (error) {
         console.log(error);
       });
@@ -1921,15 +1925,49 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      shouldEdit: false
+      shouldEdit: false,
+      deleteConfirmationText: ''
     };
   },
   methods: {
-    update: function update(url) {
+    update: function update(id, name, url) {
+      var _this = this;
+
       console.log(url);
+      axios.post('/api/server/update', {
+        id: id,
+        name: name,
+        server_url: url
+      }).then(function (response) {
+        _this.$emit('serverUpdated');
+      })["catch"](function (error) {
+        alert(error);
+      });
+    },
+    deleteServer: function deleteServer(id) {
+      var _this2 = this;
+
+      axios.post('/api/server/delete', {
+        id: id
+      }).then(function (response) {
+        _this2.$emit('serverDeleted');
+      })["catch"](function (error) {
+        alert(error);
+      });
     }
   },
   props: {
@@ -1961,10 +1999,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      servers: []
+      servers: [],
+      isLoading: false
     };
   },
   created: function created() {
@@ -1992,6 +2036,10 @@ __webpack_require__.r(__webpack_exports__);
     },
     update: function update(data) {
       for (var i = 0; i < data.length; i++) {
+        if (i == data.length - 1) {
+          this.isLoading = false;
+        }
+
         this.ping(data[i]);
       }
     },
@@ -2005,7 +2053,6 @@ __webpack_require__.r(__webpack_exports__);
       axios.post('/api/server/ping', {
         serverUrl: serverUrl
       }).then(function (response) {
-        console.log(server);
         serverStatus = response.data.status;
 
         _this2.servers.push({
@@ -2746,13 +2793,20 @@ var render = function() {
             ]),
             _vm._v(" "),
             _c("p", { staticClass: "column" }, [
-              _c("span", { staticClass: "tag is-primary" }, [
-                _vm._v(
-                  "\n                    " +
-                    _vm._s(_vm.server.status) +
-                    "\n                "
-                )
-              ])
+              _c(
+                "span",
+                {
+                  staticClass: "tag is-primary",
+                  class: { "is-danger": _vm.server.status == "down" }
+                },
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(_vm.server.status) +
+                      "\n                "
+                  )
+                ]
+              )
             ])
           ]
         )
@@ -2760,106 +2814,152 @@ var render = function() {
     _vm._v(" "),
     _vm.shouldEdit
       ? _c("form", [
-          _c("div", { staticClass: "columns" }, [
-            _c("div", { staticClass: "column" }, [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.server.id,
-                    expression: "server.id"
-                  }
-                ],
-                staticClass: "input",
-                attrs: { type: "text", placeholder: "Wordpress" },
-                domProps: { value: _vm.server.id },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.$set(_vm.server, "id", $event.target.value)
-                  }
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "column" }, [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.server.name,
-                    expression: "server.name"
-                  }
-                ],
-                staticClass: "input",
-                attrs: { type: "text", placeholder: "Wordpress" },
-                domProps: { value: _vm.server.name },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.$set(_vm.server, "name", $event.target.value)
-                  }
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "column" }, [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.server.url,
-                    expression: "server.url"
-                  }
-                ],
-                staticClass: "input",
-                attrs: { type: "text", placeholder: "Wordpress" },
-                domProps: { value: _vm.server.url },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.$set(_vm.server, "url", $event.target.value)
-                  }
-                }
-              })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "column" }, [
-              _c(
-                "a",
+          _c("div", { staticClass: "column" }, [
+            _c("input", {
+              directives: [
                 {
-                  staticClass: "button is-primary",
-                  on: {
-                    click: function($event) {
-                      return _vm.update(_vm.server.name, _vm.server.url)
-                    }
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.server.id,
+                  expression: "server.id"
+                }
+              ],
+              staticClass: "input",
+              attrs: { type: "text", placeholder: "Wordpress" },
+              domProps: { value: _vm.server.id },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
                   }
-                },
-                [_vm._v("Update")]
-              ),
-              _vm._v(" "),
-              _c(
-                "a",
+                  _vm.$set(_vm.server, "id", $event.target.value)
+                }
+              }
+            })
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "column" }, [
+            _c("input", {
+              directives: [
                 {
-                  staticClass: "button is-default",
-                  on: {
-                    click: function($event) {
-                      _vm.shouldEdit = false
-                    }
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.server.name,
+                  expression: "server.name"
+                }
+              ],
+              staticClass: "input",
+              attrs: { type: "text", placeholder: "Wordpress" },
+              domProps: { value: _vm.server.name },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
                   }
+                  _vm.$set(_vm.server, "name", $event.target.value)
+                }
+              }
+            })
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "column" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.server.url,
+                  expression: "server.url"
+                }
+              ],
+              staticClass: "input",
+              attrs: { type: "text", placeholder: "Wordpress" },
+              domProps: { value: _vm.server.url },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.server, "url", $event.target.value)
+                }
+              }
+            })
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "column" }, [
+            _c(
+              "a",
+              {
+                staticClass: "button is-primary",
+                on: {
+                  click: function($event) {
+                    return _vm.update(
+                      _vm.server.id,
+                      _vm.server.name,
+                      _vm.server.url
+                    )
+                  }
+                }
+              },
+              [_vm._v("Update")]
+            ),
+            _vm._v(" "),
+            _c(
+              "a",
+              {
+                staticClass: "button is-default",
+                on: {
+                  click: function($event) {
+                    _vm.shouldEdit = false
+                  }
+                }
+              },
+              [_vm._v("Cancel")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "column" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.deleteConfirmationText,
+                  expression: "deleteConfirmationText"
+                }
+              ],
+              staticClass: "input",
+              attrs: { type: "text", placeholder: "Server name" },
+              domProps: { value: _vm.deleteConfirmationText },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.deleteConfirmationText = $event.target.value
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c("p", { staticClass: "help" }, [
+              _vm._v("Type in server name to delete permanently.")
+            ]),
+            _vm._v(" "),
+            _c(
+              "a",
+              {
+                staticClass: "button is-danger",
+                attrs: {
+                  disabled: _vm.deleteConfirmationText != _vm.server.name
                 },
-                [_vm._v("Cancel")]
-              )
-            ])
+                on: {
+                  click: function($event) {
+                    return _vm.deleteServer(_vm.server.id)
+                  }
+                }
+              },
+              [_vm._v("Delete")]
+            )
           ])
         ])
       : _vm._e()
@@ -2890,9 +2990,17 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("a", { staticClass: "button is-info", on: { click: _vm.fetch } }, [
-        _vm._v("Refresh")
-      ]),
+      _c("new-server", { on: { serverAdded: _vm.fetch } }),
+      _vm._v(" "),
+      _c(
+        "a",
+        {
+          staticClass: "button is-info",
+          class: { "is-loading": _vm.isLoading },
+          on: { click: _vm.fetch }
+        },
+        [_vm._v("Refresh")]
+      ),
       _vm._v(" "),
       _vm._l(_vm.servers, function(server) {
         return _c(
@@ -2906,7 +3014,8 @@ var render = function() {
                   url: server.server_url,
                   status: server.status
                 }
-              }
+              },
+              on: { serverDeleted: _vm.fetch, serverUpdated: _vm.fetch }
             })
           ],
           1

@@ -67,8 +67,6 @@
                         </aside>
                     </div>
                     <div class="column is-9 mt-20">
-
-                        <new-server></new-server>
                         <servers></servers>
                     </div>
                 </div>
