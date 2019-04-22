@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Karlmonson\Ping\Ping;
 use App\Server;
+
 
 class PingServer extends Command
 {
@@ -38,17 +40,31 @@ class PingServer extends Command
      */
     public function handle()
     {
-        // $servers = Server::all();
+        $servers = Server::all();
 
-        // $servers->each(function($server){
-        //     echo $server->server_url . "\n";
-        // });
+        $servers->each(function($server){
 
-        $server = new Server();
-        $server->name = 'Test';
-        $server->server_url = 'http://test.com';
-        $status = $server->save();
+            $status = $this->isUp($server->server_url);
+            
+            $message = "Server: " . $server->name . ' with address: ' 
+            . $server->server_url. 
+            ' is ' . $status . "\n";
+        
+            $this->info($message);
+        
 
-        $this->info('The server: ' . $server->name . ' is created!');
+        });
+    }
+
+    public function isUp($serverName)
+    {
+        $health = new Ping();
+        $health = $health->check($serverName);
+
+        if($health == 200) {
+            return 'up';
+        } else {
+            return 'down';
+        }
     }
 }
