@@ -16,7 +16,7 @@
 
                 <div class="column">
                     <input class="input"
-                           type="text"
+                           type="hidden"
                            v-model="server.id"
                            placeholder="Wordpress">
                 </div>
@@ -32,6 +32,7 @@
                            v-model="server.url"
                            placeholder="Wordpress">
                 </div>
+                <p class="help has-text-danger">{{ this.errorMessage }}</p>
                 <div class="column">
                     <a class="button is-primary"
                        v-on:click="update(server.id, server.name, server.url)">Update</a>
@@ -59,12 +60,18 @@
         data() {
             return {
                 shouldEdit: false,
+                errorMessage: '',
                 deleteConfirmationText: '',
             };
         },
         methods: {
+         
           update(id, name, url) {
-              console.log(url);
+              
+              if(!this.validate(name, url)) {
+                return;
+              }
+
               axios.post('/api/server/update', {
                   id: id,
                   name: name,
@@ -74,8 +81,11 @@
               }).catch(error => {
                   alert(error);
               });
+
           },
+          
           deleteServer(id) {
+
               axios.post('/api/server/delete', {
                   id: id,
               }).then(response => {
@@ -83,7 +93,22 @@
               }).catch(error => {
                   alert(error);
               });
+
+          },
+
+          validate(name, url) {
+            
+            if (!name || !url) {
+              this.errorMessage = 'Please fill in all fields';
+              return false;
+            }
+
+            this.errorMessage = '';
+            return true;
+
           }
+
+
         },
         props: {
             server: Object,

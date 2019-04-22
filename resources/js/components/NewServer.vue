@@ -22,6 +22,7 @@
                         <input v-model="serverUrl" class="input" type="text" placeholder="http://myserver.com">
                     </div>
                 </div>
+                <p class="help has-text-danger">{{ this.errorMessage }}</p>
                 <div class="control">
                     <a class="button is-primary"
                        v-on:click="create()">
@@ -47,10 +48,16 @@
                 addNewServer: false,
                 serverUrl: '',
                 serverName: '',
+                errorMessage: ''
             };
         },
         methods: {
             create() {
+
+                if(!this.validate()) {
+                    return;
+                }
+
                 axios.post('/api/server/new', {
                     name: this.serverName,
                     server_url: this.serverUrl,
@@ -62,6 +69,14 @@
                 .catch(error => {
                     console.log(error);
                 });
+            },
+            validate() {
+                if (!this.serverName || !this.serverUrl) {
+                    this.errorMessage = 'Please fill in all fields.';
+                    return false;
+                }
+                this.errorMessage = '';
+                return true;
             }
         },
     };

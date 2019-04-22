@@ -1824,17 +1824,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       addNewServer: false,
       serverUrl: '',
-      serverName: ''
+      serverName: '',
+      errorMessage: ''
     };
   },
   methods: {
     create: function create() {
       var _this = this;
+
+      if (!this.validate()) {
+        return;
+      }
 
       axios.post('/api/server/new', {
         name: this.serverName,
@@ -1846,6 +1852,15 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         console.log(error);
       });
+    },
+    validate: function validate() {
+      if (!this.serverName || !this.serverUrl) {
+        this.errorMessage = 'Please fill in all fields.';
+        return false;
+      }
+
+      this.errorMessage = '';
+      return true;
     }
   }
 });
@@ -1936,10 +1951,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       shouldEdit: false,
+      errorMessage: '',
       deleteConfirmationText: ''
     };
   },
@@ -1947,7 +1964,10 @@ __webpack_require__.r(__webpack_exports__);
     update: function update(id, name, url) {
       var _this = this;
 
-      console.log(url);
+      if (!this.validate(name, url)) {
+        return;
+      }
+
       axios.post('/api/server/update', {
         id: id,
         name: name,
@@ -1968,6 +1988,15 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         alert(error);
       });
+    },
+    validate: function validate(name, url) {
+      if (!name || !url) {
+        this.errorMessage = 'Please fill in all fields';
+        return false;
+      }
+
+      this.errorMessage = '';
+      return true;
     }
   },
   props: {
@@ -2693,6 +2722,10 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
+            _c("p", { staticClass: "help has-text-danger" }, [
+              _vm._v(_vm._s(this.errorMessage))
+            ]),
+            _vm._v(" "),
             _c("div", { staticClass: "control" }, [
               _c(
                 "a",
@@ -2825,7 +2858,7 @@ var render = function() {
                 }
               ],
               staticClass: "input",
-              attrs: { type: "text", placeholder: "Wordpress" },
+              attrs: { type: "hidden", placeholder: "Wordpress" },
               domProps: { value: _vm.server.id },
               on: {
                 input: function($event) {
@@ -2884,6 +2917,10 @@ var render = function() {
                 }
               }
             })
+          ]),
+          _vm._v(" "),
+          _c("p", { staticClass: "help has-text-danger" }, [
+            _vm._v(_vm._s(this.errorMessage))
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "column" }, [
