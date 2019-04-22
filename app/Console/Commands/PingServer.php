@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Karlmonson\Ping\Ping;
+use App\Mail\NotifyUser;
 use App\Server;
 
 
@@ -44,16 +45,43 @@ class PingServer extends Command
 
         $servers->each(function($server){
 
-            $status = $this->isUp($server->server_url);
             
-            $message = "Server: " . $server->name . ' with address: ' 
-            . $server->server_url. 
-            ' is ' . $status . "\n";
-        
-            $this->info($message);
-        
+            if ($server->is_up) {
+                // Usecase 1
+                // If is_up is true then ping server    
+                $isUp = $this->isUp($server->server_url);
+                
+                if(!$isUp) {
+                    
+                    $server->is_up = false;
+                    $server->save();
 
+                    $message = "Server: " . $server->name . ' with address: ' 
+                    . $server->server_url. " is down! \n";
+                    $this->info($message);
+                    \Mail::to('muhammad.tashfeen.amin@gmail.com')->send(new NotifyUser($server));
+
+                } 
+
+            } else {
+                // Usecase 2
+                // If is_up is false then ping server again
+                $isUp = $this->isUp($server->server_url);
+                if($isUp) {
+
+                    $server->is_up = true;
+                    $server->save();      
+                    
+                    $message = "Server: " . $server->name . ' with address: ' 
+                    . $server->server_url. " is up again! \n";
+                    $this->info($message);  
+                    \Mail::to('muhammad.tashfeen.amin@gmail.com')->send(new NotifyUser($server));
+
+                }    
+            }            
+        
         });
+    
     }
 
     public function isUp($serverName)
@@ -62,9 +90,8 @@ class PingServer extends Command
         $health = $health->check($serverName);
 
         if($health == 200) {
-            return 'up';
-        } else {
-            return 'down';
-        }
+            return true;
+        } 
+        return false;    
     }
 }

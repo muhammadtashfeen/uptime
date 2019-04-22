@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateServersTable extends Migration
+class AddIsUpColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,8 @@ class CreateServersTable extends Migration
      */
     public function up()
     {
-        Schema::create('servers', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('server_url');
-            $table->boolean('is_up');
-            $table->timestamps();
+        Schema::table('servers', function (Blueprint $table) {
+            $table->boolean('is_up')->default(1);
         });
     }
 
@@ -29,6 +25,8 @@ class CreateServersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('servers');
+        Schema::table('servers', function (Blueprint $table) {
+            //
+        });
     }
 }

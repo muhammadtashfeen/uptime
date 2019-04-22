@@ -25,8 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {   
         $schedule->command('command:pingservers')
-                 ->everyMinute()
-                 ->appendOutputTo(storage_path('logs/ping.log'));;
+                 ->everyMinute();
     }
 
     /**
