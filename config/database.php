@@ -42,11 +42,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'port' => '3306',
-            'database' => 'uptime',
-            'username' => 'root',
-            'password' => 'root',
+            'host' => 'localhost',
+            'port' => '33060',
+            'database' => 'assets',
+            'username' => 'homestead',
+            'password' => 'secret',
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
