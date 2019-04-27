@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Server;
-use Karlmonson\Ping\Ping;
+use App\Ping\Ping;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -24,6 +24,29 @@ class Controller extends BaseController
         } else {
             return ['status' => 'down' ];
         }
+    }
+
+    public function pingTest($url = 'http://www.google.com')
+    {
+        $health = new Ping();
+        $health = $health->pingWithResponseTime($url);
+
+        if($health['code'] == 200) {
+            return [
+                'status' => 'up',
+                'responseTime' => $health['responseTime'],
+                'serverType'   => $health['serverType'],
+            ];
+        } else {
+            return [
+                'status' => 'down',
+                'responseTime' => $health['responseTime'],
+                'serverType'   => $health['serverType'],
+            ];
+        }
+
+        dump($health);
+        die;
     }
 
     public function create(Request $request)
