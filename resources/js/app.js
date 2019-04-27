@@ -2,9 +2,9 @@ import Vue from 'vue';
 import Axios from 'axios';
 import Routes from './routes';
 import VueRouter from 'vue-router';
-import Server from './components/Server';
-import Servers from './components/Servers';
-import NewServer from './components/NewServer';
+import Server from './components/server/Server';
+import Servers from './components/server/Servers';
+import NewServer from './components/server/NewServer';
 
 window.axios = Axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

@@ -48,28 +48,17 @@
                 </div>
             </nav>
             <!-- END NAV -->
-            <div class="container">
-                <div class="columns">
-                    <div class="column is-3 has-text-weight-bold">
-                        <aside class="menu is-hidden-mobile mt-20">
 
-                            <ul class="menu-list">
+            <div class="container px-20">
 
-                                <li>
-                                    <a>Manage Your Servers</a>
-                                    <ul>
-                                        <li><a>Members</a></li>
-                                        <li><a>Plugins</a></li>
-                                        <li><a>Add a member</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </aside>
-                    </div>
-                    <div class="column is-9 mt-20">
+                <div class="columns mt-20">
+
+                    <div class="column is-half is-full-tablet">
                         <servers></servers>
                     </div>
+
                 </div>
+
             </div>
 
 

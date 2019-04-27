@@ -1,7 +1,7 @@
 <template>
     <div class="box mt-20">
 
-        <div class="columns" v-if="!shouldEdit" v-on:click="shouldEdit = true">
+        <div class="columns is-mobile" v-if="!shouldEdit" v-on:click="shouldEdit = true">
             <p class="column">{{ server.name }}</p>
             <p class="column">{{ server.url }}</p>
             <p class="column">
