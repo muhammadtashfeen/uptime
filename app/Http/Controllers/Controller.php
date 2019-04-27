@@ -26,7 +26,7 @@ class Controller extends BaseController
         }
     }
 
-    public function pingTest($url = 'http://www.google.com')
+    public function pingDetails($url = 'http://www.google.com')
     {
         $health = new Ping();
         $health = $health->pingWithResponseTime($url);
@@ -44,9 +44,6 @@ class Controller extends BaseController
                 'serverType'   => $health['serverType'],
             ];
         }
-
-        dump($health);
-        die;
     }
 
     public function create(Request $request)
@@ -85,6 +82,13 @@ class Controller extends BaseController
         $servers = Server::all();
         return $servers;
     }
+
+    public function findById($id)
+    {
+        $server = Server::where('id', $id)->first();
+        return $server;
+    }
+
     public function delete(Request $request)
     {
         $server = Server::find($request->get('id'));

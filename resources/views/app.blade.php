@@ -50,15 +50,7 @@
             <!-- END NAV -->
 
             <div class="container px-20">
-
-                <div class="columns mt-20">
-
-                    <div class="column is-half is-full-tablet">
-                        <servers></servers>
-                    </div>
-
-                </div>
-
+                <servers></servers>
             </div>
 
 

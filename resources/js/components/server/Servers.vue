@@ -1,15 +1,26 @@
 <template>
 
-    <div>
-        <new-server v-on:serverAdded="fetch"></new-server>
-        <a class="button is-info"
-           v-bind:class="{'is-loading': isLoading}"
-           v-on:click="fetch">Refresh</a>
-        <div v-for="server in servers">
-            <server :server="{id: server.id, name: server.name, url: server.server_url, status: server.status,}"
-            v-on:serverDeleted="fetch"
-            v-on:serverUpdated="fetch"></server>
+    <div class="columns mt-20">
 
+        <div class="column is-half is-full-tablet">
+            <new-server v-on:serverAdded="fetch"></new-server>
+            <a class="button is-info"
+               v-bind:class="{'is-loading': isLoading}"
+               v-on:click="fetch">Refresh</a>
+            <div v-for="(server, index) in servers">
+                <server :server="{
+                            id: server.id,
+                            name: server.name,
+                            url: server.server_url,
+                            status: server.status,
+                            index: index
+                        }"></server>
+
+            </div>
+        </div>
+
+        <div class="column is-half is-full-tablet">
+            <server-details></server-details>
         </div>
 
     </div>
@@ -26,6 +37,9 @@
            };
         },
         created() {
+            this.eventHub.$on('serverUpdated', id => {
+                this.fetch();
+            });
             this.fetch();
         },
         methods: {

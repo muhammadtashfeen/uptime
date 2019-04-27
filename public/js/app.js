@@ -1894,6 +1894,62 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      isSelected: false
+    };
+  },
+  created: function created() {
+    //Open details if index==0
+    //Only when page loads the details
+    if (this.$props.server.index == 0) {
+      this.goToDetails(this.$props.server.id);
+    }
+
+    this.registerListener();
+  },
+  methods: {
+    goToDetails: function goToDetails(id) {
+      this.eventHub.$emit('newServerSelected', id);
+      this.eventHub.$emit('showServerDetails', id);
+      this.isSelected = true;
+    },
+    registerListener: function registerListener() {
+      var _this = this;
+
+      this.eventHub.$on('newServerSelected', function (serverId) {
+        if (_this.id == serverId) {
+          _this.isSelected = true;
+          return;
+        }
+
+        _this.isSelected = false;
+      });
+    }
+  },
+  props: {
+    server: Object
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/server/ServerDetails.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/server/ServerDetails.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -1936,14 +1992,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      shouldEdit: false,
+      id: '',
+      name: '',
+      url: '',
       errorMessage: '',
       deleteConfirmationText: ''
     };
   },
+  created: function created() {
+    var _this = this;
+
+    this.eventHub.$on('showServerDetails', function (serverId) {
+      _this.fetch(serverId);
+    });
+  },
   methods: {
+    fetch: function fetch(id) {
+      var _this2 = this;
+
+      axios.get('/api/server/find/' + id).then(function (response) {
+        var response = response.data;
+        _this2.id = response.id;
+        _this2.name = response.name;
+        _this2.url = response.server_url;
+      });
+    },
     update: function update(id, name, url) {
-      var _this = this;
+      var _this3 = this;
 
       if (!this.validate(name, url)) {
         return;
@@ -1954,18 +2029,18 @@ __webpack_require__.r(__webpack_exports__);
         name: name,
         server_url: url
       }).then(function (response) {
-        _this.$emit('serverUpdated');
+        _this3.eventHub.$emit('serverUpdated');
       })["catch"](function (error) {
         alert(error);
       });
     },
     deleteServer: function deleteServer(id) {
-      var _this2 = this;
+      var _this4 = this;
 
       axios.post('/api/server/delete', {
         id: id
       }).then(function (response) {
-        _this2.$emit('serverDeleted');
+        _this4.eventHub.$emit('serverUpdated');
       })["catch"](function (error) {
         alert(error);
       });
@@ -1979,9 +2054,6 @@ __webpack_require__.r(__webpack_exports__);
       this.errorMessage = '';
       return true;
     }
-  },
-  props: {
-    server: Object
   }
 });
 
@@ -2014,6 +2086,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2022,11 +2105,16 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   created: function created() {
+    var _this = this;
+
+    this.eventHub.$on('serverUpdated', function (id) {
+      _this.fetch();
+    });
     this.fetch();
   },
   methods: {
     fetch: function fetch() {
-      var _this = this;
+      var _this2 = this;
 
       this.servers = [];
       axios.get('/api/server/all').then(function (response) {
@@ -2041,7 +2129,7 @@ __webpack_require__.r(__webpack_exports__);
           });
         });
 
-        _this.update(data);
+        _this2.update(data);
       });
     },
     update: function update(data) {
@@ -2054,7 +2142,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     ping: function ping(server) {
-      var _this2 = this;
+      var _this3 = this;
 
       var serverId = server.id;
       var serverName = server.name;
@@ -2065,7 +2153,7 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         serverStatus = response.data.status;
 
-        _this2.servers.push({
+        _this3.servers.push({
           id: serverId,
           name: serverName,
           server_url: serverUrl,
@@ -2761,202 +2849,227 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    {
+      staticClass: "box mt-20",
+      class: _vm.isSelected ? "has-background-grey-lighter" : ""
+    },
+    [
+      _c(
+        "div",
+        {
+          staticClass: "columns is-mobile",
+          on: {
+            click: function($event) {
+              return _vm.goToDetails(_vm.server.id)
+            }
+          }
+        },
+        [
+          _c("p", { staticClass: "column is-4" }, [
+            _vm._v(_vm._s(_vm.server.name))
+          ]),
+          _vm._v(" "),
+          _c("p", { staticClass: "column is-6" }, [
+            _vm._v(_vm._s(_vm.server.url))
+          ]),
+          _vm._v(" "),
+          _c("p", { staticClass: "column is-2" }, [
+            _c(
+              "span",
+              {
+                staticClass: "tag is-primary",
+                class: { "is-danger": _vm.server.status == "down" }
+              },
+              [
+                _vm._v(
+                  "\n                    " +
+                    _vm._s(_vm.server.status) +
+                    "\n                "
+                )
+              ]
+            )
+          ])
+        ]
+      )
+    ]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/server/ServerDetails.vue?vue&type=template&id=215d1244&":
+/*!***********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/server/ServerDetails.vue?vue&type=template&id=215d1244& ***!
+  \***********************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
   return _c("div", { staticClass: "box mt-20" }, [
-    !_vm.shouldEdit
-      ? _c(
-          "div",
+    _c("form", [
+      _c("p", { staticClass: "title has-text-centered" }, [
+        _vm._v(_vm._s(_vm.name))
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "column" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.id,
+              expression: "id"
+            }
+          ],
+          staticClass: "input",
+          attrs: { type: "hidden", placeholder: "Wordpress" },
+          domProps: { value: _vm.id },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.id = $event.target.value
+            }
+          }
+        })
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "column" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.name,
+              expression: "name"
+            }
+          ],
+          staticClass: "input",
+          attrs: { type: "text", placeholder: "Wordpress" },
+          domProps: { value: _vm.name },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.name = $event.target.value
+            }
+          }
+        })
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "column" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.url,
+              expression: "url"
+            }
+          ],
+          staticClass: "input",
+          attrs: { type: "text", placeholder: "Wordpress" },
+          domProps: { value: _vm.url },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.url = $event.target.value
+            }
+          }
+        })
+      ]),
+      _vm._v(" "),
+      _c("p", { staticClass: "help has-text-danger" }, [
+        _vm._v(_vm._s(_vm.errorMessage))
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "column" }, [
+        _c(
+          "a",
           {
-            staticClass: "columns is-mobile",
+            staticClass: "button is-primary",
             on: {
               click: function($event) {
-                _vm.shouldEdit = true
+                return _vm.update(_vm.id, _vm.name, _vm.url)
               }
             }
           },
-          [
-            _c("p", { staticClass: "column" }, [
-              _vm._v(_vm._s(_vm.server.name))
-            ]),
-            _vm._v(" "),
-            _c("p", { staticClass: "column" }, [
-              _vm._v(_vm._s(_vm.server.url))
-            ]),
-            _vm._v(" "),
-            _c("p", { staticClass: "column" }, [
-              _c(
-                "span",
-                {
-                  staticClass: "tag is-primary",
-                  class: { "is-danger": _vm.server.status == "down" }
-                },
-                [
-                  _vm._v(
-                    "\n                    " +
-                      _vm._s(_vm.server.status) +
-                      "\n                "
-                  )
-                ]
-              )
-            ])
-          ]
+          [_vm._v("Update")]
+        ),
+        _vm._v(" "),
+        _c(
+          "a",
+          {
+            staticClass: "button is-default",
+            on: {
+              click: function($event) {
+                _vm.shouldEdit = false
+              }
+            }
+          },
+          [_vm._v("Cancel")]
         )
-      : _vm._e(),
-    _vm._v(" "),
-    _vm.shouldEdit
-      ? _c("form", [
-          _c("div", { staticClass: "column" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.server.id,
-                  expression: "server.id"
-                }
-              ],
-              staticClass: "input",
-              attrs: { type: "hidden", placeholder: "Wordpress" },
-              domProps: { value: _vm.server.id },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.server, "id", $event.target.value)
-                }
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "column" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.deleteConfirmationText,
+              expression: "deleteConfirmationText"
+            }
+          ],
+          staticClass: "input",
+          attrs: { type: "text", placeholder: "Server name" },
+          domProps: { value: _vm.deleteConfirmationText },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
               }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "column" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.server.name,
-                  expression: "server.name"
-                }
-              ],
-              staticClass: "input",
-              attrs: { type: "text", placeholder: "Wordpress" },
-              domProps: { value: _vm.server.name },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.server, "name", $event.target.value)
-                }
+              _vm.deleteConfirmationText = $event.target.value
+            }
+          }
+        }),
+        _vm._v(" "),
+        _c("p", { staticClass: "help" }, [
+          _vm._v("Type in server name to delete permanently.")
+        ]),
+        _vm._v(" "),
+        _c(
+          "a",
+          {
+            staticClass: "button is-danger",
+            attrs: { disabled: this.deleteConfirmationText != this.name },
+            on: {
+              click: function($event) {
+                return _vm.deleteServer(_vm.id)
               }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "column" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.server.url,
-                  expression: "server.url"
-                }
-              ],
-              staticClass: "input",
-              attrs: { type: "text", placeholder: "Wordpress" },
-              domProps: { value: _vm.server.url },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.server, "url", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("p", { staticClass: "help has-text-danger" }, [
-            _vm._v(_vm._s(this.errorMessage))
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "column" }, [
-            _c(
-              "a",
-              {
-                staticClass: "button is-primary",
-                on: {
-                  click: function($event) {
-                    return _vm.update(
-                      _vm.server.id,
-                      _vm.server.name,
-                      _vm.server.url
-                    )
-                  }
-                }
-              },
-              [_vm._v("Update")]
-            ),
-            _vm._v(" "),
-            _c(
-              "a",
-              {
-                staticClass: "button is-default",
-                on: {
-                  click: function($event) {
-                    _vm.shouldEdit = false
-                  }
-                }
-              },
-              [_vm._v("Cancel")]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "column" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.deleteConfirmationText,
-                  expression: "deleteConfirmationText"
-                }
-              ],
-              staticClass: "input",
-              attrs: { type: "text", placeholder: "Server name" },
-              domProps: { value: _vm.deleteConfirmationText },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.deleteConfirmationText = $event.target.value
-                }
-              }
-            }),
-            _vm._v(" "),
-            _c("p", { staticClass: "help" }, [
-              _vm._v("Type in server name to delete permanently.")
-            ]),
-            _vm._v(" "),
-            _c(
-              "a",
-              {
-                staticClass: "button is-danger",
-                attrs: {
-                  disabled: _vm.deleteConfirmationText != _vm.server.name
-                },
-                on: {
-                  click: function($event) {
-                    return _vm.deleteServer(_vm.server.id)
-                  }
-                }
-              },
-              [_vm._v("Delete")]
-            )
-          ])
-        ])
-      : _vm._e()
+            }
+          },
+          [_vm._v("Delete")]
+        )
+      ])
+    ])
   ])
 }
 var staticRenderFns = []
@@ -2981,43 +3094,53 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c("new-server", { on: { serverAdded: _vm.fetch } }),
-      _vm._v(" "),
-      _c(
-        "a",
-        {
-          staticClass: "button is-info",
-          class: { "is-loading": _vm.isLoading },
-          on: { click: _vm.fetch }
-        },
-        [_vm._v("Refresh")]
-      ),
-      _vm._v(" "),
-      _vm._l(_vm.servers, function(server) {
-        return _c(
-          "div",
-          [
-            _c("server", {
-              attrs: {
-                server: {
-                  id: server.id,
-                  name: server.name,
-                  url: server.server_url,
-                  status: server.status
+  return _c("div", { staticClass: "columns mt-20" }, [
+    _c(
+      "div",
+      { staticClass: "column is-half is-full-tablet" },
+      [
+        _c("new-server", { on: { serverAdded: _vm.fetch } }),
+        _vm._v(" "),
+        _c(
+          "a",
+          {
+            staticClass: "button is-info",
+            class: { "is-loading": _vm.isLoading },
+            on: { click: _vm.fetch }
+          },
+          [_vm._v("Refresh")]
+        ),
+        _vm._v(" "),
+        _vm._l(_vm.servers, function(server, index) {
+          return _c(
+            "div",
+            [
+              _c("server", {
+                attrs: {
+                  server: {
+                    id: server.id,
+                    name: server.name,
+                    url: server.server_url,
+                    status: server.status,
+                    index: index
+                  }
                 }
-              },
-              on: { serverDeleted: _vm.fetch, serverUpdated: _vm.fetch }
-            })
-          ],
-          1
-        )
-      })
-    ],
-    2
-  )
+              })
+            ],
+            1
+          )
+        })
+      ],
+      2
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "column is-half is-full-tablet" },
+      [_c("server-details")],
+      1
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -17829,25 +17952,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./routes */ "./resources/js/routes.js");
 /* harmony import */ var vue_router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.esm.js");
 /* harmony import */ var _components_server_Server__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/server/Server */ "./resources/js/components/server/Server.vue");
-/* harmony import */ var _components_server_Servers__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/server/Servers */ "./resources/js/components/server/Servers.vue");
-/* harmony import */ var _components_server_NewServer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/server/NewServer */ "./resources/js/components/server/NewServer.vue");
+/* harmony import */ var _components_server_ServerDetails__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/server/ServerDetails */ "./resources/js/components/server/ServerDetails.vue");
+/* harmony import */ var _components_server_Servers__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/server/Servers */ "./resources/js/components/server/Servers.vue");
+/* harmony import */ var _components_server_NewServer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/server/NewServer */ "./resources/js/components/server/NewServer.vue");
 
 
 
 
 
 
+
+
+/**
+ * Global vars
+ */
 
 window.axios = axios__WEBPACK_IMPORTED_MODULE_1___default.a;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+var eventHub = new vue__WEBPACK_IMPORTED_MODULE_0___default.a();
 /**
  * Register components and vue router
  */
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODULE_3__["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('server', _components_server_Server__WEBPACK_IMPORTED_MODULE_4__["default"]);
-vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('servers', _components_server_Servers__WEBPACK_IMPORTED_MODULE_5__["default"]);
-vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-server', _components_server_NewServer__WEBPACK_IMPORTED_MODULE_6__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('server-details', _components_server_ServerDetails__WEBPACK_IMPORTED_MODULE_5__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('servers', _components_server_Servers__WEBPACK_IMPORTED_MODULE_6__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-server', _components_server_NewServer__WEBPACK_IMPORTED_MODULE_7__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.mixin({
+  data: function data() {
+    return {
+      eventHub: eventHub
+    };
+  }
+});
 /**
  * init
  */
@@ -18061,6 +18199,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Server_vue_vue_type_template_id_477817f4___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Server_vue_vue_type_template_id_477817f4___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/server/ServerDetails.vue":
+/*!**********************************************************!*\
+  !*** ./resources/js/components/server/ServerDetails.vue ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ServerDetails_vue_vue_type_template_id_215d1244___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ServerDetails.vue?vue&type=template&id=215d1244& */ "./resources/js/components/server/ServerDetails.vue?vue&type=template&id=215d1244&");
+/* harmony import */ var _ServerDetails_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ServerDetails.vue?vue&type=script&lang=js& */ "./resources/js/components/server/ServerDetails.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _ServerDetails_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ServerDetails_vue_vue_type_template_id_215d1244___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ServerDetails_vue_vue_type_template_id_215d1244___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/server/ServerDetails.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/server/ServerDetails.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************!*\
+  !*** ./resources/js/components/server/ServerDetails.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ServerDetails_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./ServerDetails.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/server/ServerDetails.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ServerDetails_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/server/ServerDetails.vue?vue&type=template&id=215d1244&":
+/*!*****************************************************************************************!*\
+  !*** ./resources/js/components/server/ServerDetails.vue?vue&type=template&id=215d1244& ***!
+  \*****************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ServerDetails_vue_vue_type_template_id_215d1244___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ServerDetails.vue?vue&type=template&id=215d1244& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/server/ServerDetails.vue?vue&type=template&id=215d1244&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ServerDetails_vue_vue_type_template_id_215d1244___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ServerDetails_vue_vue_type_template_id_215d1244___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
