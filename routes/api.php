@@ -25,3 +25,4 @@ Route::post('server/delete','Controller@delete');
 Route::post('server/update','Controller@update');
 Route::get('server/all','Controller@all');
 Route::get('server/find/{id}','Controller@findById');
+Route::get('server/test','Controller@test');

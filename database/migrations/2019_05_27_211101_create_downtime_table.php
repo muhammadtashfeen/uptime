@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateServersTable extends Migration
+class CreateDowntimeTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,14 @@ class CreateServersTable extends Migration
      */
     public function up()
     {
-        Schema::create('servers', function (Blueprint $table) {
+        Schema::create('downtime', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('server_url');
-            $table->boolean('is_up')->default(1);
+            $table->integer('server_id');
+            $table->foreign('server_id')
+                    ->references('id')
+                    ->on('servers')
+                    ->onDelete('cascade');
+            $table->float('down_time');
             $table->timestamps();
         });
     }
@@ -29,6 +32,6 @@ class CreateServersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('servers');
+        Schema::dropIfExists('downtime');
     }
 }

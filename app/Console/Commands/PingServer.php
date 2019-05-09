@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Karlmonson\Ping\Ping;
+use App\Ping\Ping;
 use App\Mail\NotifyUser;
 use App\Server;
+use App\DownTime;
 
 
 class PingServer extends Command
@@ -24,12 +26,13 @@ class PingServer extends Command
      */
     protected $description = 'This command pings servers in the servers table every minute.';
 
+
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(DownTime $downTime)
     {
         parent::__construct();
     }
@@ -67,17 +70,29 @@ class PingServer extends Command
                 // Usecase 2
                 // If is_up is false then ping server again
                 $isUp = $this->isUp($server->server_url);
+
+                $totalDownTime = Carbon::now()
+                    ->diffInMinutes($server->updated_at->toDateTimeString());
+                $this->info($totalDownTime);
+
                 if($isUp) {
 
+                    $totalDownTime = Carbon::now()
+                        ->diffInMinutes($server->updated_at->toDateTimeString());
+
+                    $this->info($totalDownTime);
+
+                    $this->updateDownTime($server, $totalDownTime);
+
                     $server->is_up = true;
-                    $server->save();      
-                    
+                    $server->save();
+
                     $message = "Server: " . $server->name . ' with address: ' 
                     . $server->server_url. " is up again! \n";
                     $this->info($message);  
                     \Mail::to('muhammad.tashfeen.amin@gmail.com')->send(new NotifyUser($server));
 
-                }    
+                }
             }            
         
         });
@@ -93,5 +108,23 @@ class PingServer extends Command
             return true;
         } 
         return false;    
+    }
+
+    public function updateDownTime($server, $downtime)
+    {
+        $this->info('Server downtime: ' . $downtime);
+
+        $downtimeObj = DownTime::where('server_id', $server->id)->first();
+
+        if (!$downtimeObj) {
+            $downtimeObj = new DownTime();
+            $downtimeObj->down_time = $downtime;
+            $downtimeObj->server_id = $server->id;
+            $downtimeObj->save();
+            return;
+        }
+
+        $downtimeObj->down_time = $downtime;
+        $downtimeObj->save();
     }
 }

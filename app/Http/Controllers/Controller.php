@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DownTime;
 use App\Server;
 use App\Ping\Ping;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -86,6 +88,7 @@ class Controller extends BaseController
     public function findById($id)
     {
         $server = Server::where('id', $id)->first();
+
         return $server;
     }
 
@@ -95,6 +98,13 @@ class Controller extends BaseController
         return [
             'isDeleted' => $server->delete()
         ];
+    }
+
+    public function test()
+    {
+        $downtime = DownTime::find(1);
+        dump($downtime);
+        die;
     }
 
 }
