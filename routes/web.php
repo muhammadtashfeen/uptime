@@ -1,7 +1,11 @@
 <?php
 
+Route::get('/register', function (){
+    return view('auth.register');
+});
 
-Route::get('/', function () {
-    return view('app');
-})->where('any', '.*');
+Auth::routes();
+
+Route::get('/', 'HomeController@dashboard');
+Route::get('/dashboard', 'HomeController@dashboard');
 
